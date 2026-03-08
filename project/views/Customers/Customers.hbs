@@ -8,7 +8,6 @@
             <th>Customer ID</th>
             <th>Customer Name</th>
             <th>Email</th>
-            <th>Edit</th>
             <th>Delete</th>
         </tr>
     </thead>
@@ -21,11 +20,6 @@
             <td>{{this.name}}</td>
             <td>{{this.email}}</td>
 
-            <td>
-                <a href="/EditCustomer">
-                    <button>Edit</button>
-                </a>
-            </td>
             {{! DELETE form }}
             <form id='delete_movie_form'>
                 <input type='hidden' name='delete_customer_id' value='{{this.customerID}}' />
@@ -42,7 +36,13 @@
 
 {{! CREATE form }}
 <h2>Add a Customer</h2>
-<form class='cuForm' id='create_customer_form'>
+{{#if addError}}
+<p style="color:red; font-weight:bold;">
+    {{addError}}
+</p>
+{{/if}}
+
+<form class='cuForm' id='create_customer_form' method='Post' action='/Customers/addCustomer'>
     <table>
         <thead>
             <tr>
@@ -54,13 +54,56 @@
 
         <tbody>
             <td>
-                <input type='text' name='create_customer_name' id='create_customer_name' required />
+                <input type='text' name='create_name' id='create_name' required />
             </td>
             <td>
-                <input type='text' name='create_customer_email' id='create_customer_email'/>
+                <input type='text' name='create_email' id='create_email'/>
             </td>
             <td>
-                <button type="submit">Add Screen</button>
+                <button type="submit">Add Customer</button>
+            </td>
+        </tbody>
+    </table>
+</form>
+
+{{! Update Form }}
+<h2>Edit a Customer</h2>
+{{#if updateError}}
+<p style="color:red; font-weight:bold;">
+    {{updateError}}
+</p>
+{{/if}}
+
+<form class='cuForm' id='update_customer_form' method='Post' action='/Customers/update'>
+    <table>
+        <thead>
+            <tr>
+                <th>Customer ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Submit</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <td>
+                <select name='update_customer' id='update_customer' required>
+                    <option value='' disabled selected>Select a Customer ID</option>
+                    {{#each customer}}
+                    <option value='{{this.customerID}}' required>
+                        {{this.customerID}}
+                    </option>
+                    {{/each}}
+                </select>
+            </td>
+            <td>
+                <input type='text' name='update_name' id='update_name' required />
+            </td>
+            <td>
+                <input type='text' name='update_email' id='update_email'/>
+            </td>
+            <td>
+                <button type="submit">Update Customer</button>
             </td>
         </tbody>
     </table>

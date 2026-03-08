@@ -8,7 +8,6 @@
             <th>Screen ID</th>
             <th>Screen Number</th>
             <th>Seating Capacity</th>
-            <th>Edit</th>
             <th>Delete</th>
         </tr>
     </thead>
@@ -20,13 +19,6 @@
             <td>{{this.screenID}}</td>
             <td>{{this.screenNumber}}</td>
             <td>{{this.seatingCapacity}}</td>
-
-            <td>
-                <a href="/EditScreen">
-                    <button>Edit</button>
-                </a>
-            </td>
-            </td>
             
             {{! DELETE form }}
             <form id='delete_screen_form'>
@@ -44,7 +36,13 @@
 
 {{! CREATE form }}
 <h2>Add a Screen</h2>
-<form class='cuForm' id='create_screen_form'>
+{{#if addError}}
+<p style="color:red; font-weight:bold;">
+    {{addError}}
+</p>
+{{/if}}
+
+<form class='cuForm' id='create_screen_form' method ='Post' action='/Screens/addScreen'>
     <table>
         <thead>
             <tr>
@@ -56,13 +54,56 @@
 
         <tbody>
             <td>
-                <input type='number' name='create_screen_num' id='create_screen_num' required />
+                <input type='number' name='create_screen_num' id='create_screen_num' min='0' required />
             </td>
             <td>
-                <input type='number' name='create_screen_capacity' id='create_movie_gcreate_screen_capacityenre' required/>
+                <input type='number' name='create_screen_capacity' id='create_movie_gcreate_screen_capacityenre' min='0' required/>
             </td>
             <td>
                 <button type="submit">Add Screen</button>
+            </td>
+        </tbody>
+    </table>
+</form>
+
+
+<h2>Edit a Screen</h2>
+{{#if updateError}}
+<p style="color:red; font-weight:bold;">
+    {{updateError}}
+</p>
+{{/if}}
+
+<form class='cuForm' id='update_screen_form' method='Post' action='/Screens/update'>
+    <table>
+        <thead>
+            <tr>
+                <th>Screen ID</th>
+                <th>Screen Number</th>
+                <th>Seating Capacity</th>
+                <th>Submit</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <td>
+                <select name='update_screen' id='update_screen' required>
+                    <option value='' disabled selected>Select a Screen ID</option>
+                    {{#each screen}}
+                    <option value='{{this.screenID}}' required>
+                        {{this.screenID}}
+                    </option>
+                    {{/each}}
+                </select>
+            </td>
+            <td>
+                <input type='number' name='update_screen_num' id='update_screen_num' required />
+            </td>
+            <td>
+                <input type='number' name='update_screen_capacity' id='update_screen_capacity' required/>
+            </td>
+            <td>
+                <button type="submit">Update Screen</button>
             </td>
         </tbody>
     </table>

@@ -25,9 +25,9 @@
             <td>{{this.duration}}</td>
 
             {{! DELETE form }}
-            <form id='delete_movie_form'>
-                <input type='hidden' name='delete_movie_id' value='{{this.id}}' />
-                <input type='hidden' name='delete_movie_title' value='{{this.fname}} {{this.lname}}' />
+            <form id='delete_movie_form' method='Post' action='/Movies/delete'>
+                <input type='hidden' name='delete_movie_id' value='{{this.movieID}}' />
+                <input type='hidden' name='delete_movie_title' value='{{this.title}}' />
                 <td>
                     <button type='submit'>
                         Delete
@@ -40,7 +40,7 @@
 </table>
 
 <h2>Add A New Movie</h2>
-<form class='cuForm' id='create_movie_form'>
+<form class='cuForm' id='create_movie_form' method ='Post' action='/Movies/addMovie'>
     <table>
         <thead>
             <tr>
@@ -63,6 +63,46 @@
             </td>
             <td>
                 <button type="submit">Add Movie</button>
+            </td>
+        </tbody>
+    </table>
+</form>
+
+<h2>Edit A Movie</h2>
+<form class='cuForm' id='update_movie_form' method='Post' action='/Movies/update'>
+    <table>
+        <thead>
+            <tr>
+                <th>Movie ID</th>
+                <th>Title</th>
+                <th>Genre</th>
+                <th>Duration</th>
+                <th>Submit</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <td>
+                <select name='update_movie' id='update_movie' required>
+                    <option value='' disabled selected>Select a Movie ID</option>
+                    {{#each movieList}}
+                    <option value='{{this.movieID}}' required>
+                        {{this.movieID}}
+                    </option>
+                    {{/each}}
+                </select>
+            </td>
+            <td>
+                <input type='text' name='update_movie_title' id='update_movie_title' required/>
+            </td>
+            <td>
+                <input type='text' name='update_movie_genre' id='update_movie_genre' required/>
+            </td>
+            <td>
+                <input type='number' name='update_movie_duration' id='update_movie_duration' min='0' required />
+            </td>
+            <td>
+                <button type="submit">Update Movie</button>
             </td>
         </tbody>
     </table>
