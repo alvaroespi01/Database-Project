@@ -67,6 +67,7 @@
 </form>
 
 
+{{! Update form }}
 <h2>Edit a Screen</h2>
 {{#if updateError}}
 <p style="color:red; font-weight:bold;">
@@ -90,8 +91,11 @@
                 <select name='update_screen' id='update_screen' required>
                     <option value='' disabled selected>Select a Screen ID</option>
                     {{#each screen}}
-                    <option value='{{this.screenID}}' required>
-                        {{this.screenID}}
+                    <option 
+                        value='{{this.screenID}}'
+                        data-screen-number='{{this.screenNumber}}'
+                        data-seating-capacity='{{this.seatingCapacity}}'>
+                        {{this.screenNumber}}
                     </option>
                     {{/each}}
                 </select>
@@ -108,3 +112,13 @@
         </tbody>
     </table>
 </form>
+
+<script>
+    document.getElementById("update_screen").addEventListener("change", function () {
+        const selectedOption = this.options[this.selectedIndex];
+        document.getElementById("update_screen_num").value =
+            selectedOption.dataset.screenNumber;
+        document.getElementById("update_screen_capacity").value =
+            selectedOption.dataset.seatingCapacity;
+    });
+</script>

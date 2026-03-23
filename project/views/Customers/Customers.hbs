@@ -90,8 +90,11 @@
                 <select name='update_customer' id='update_customer' required>
                     <option value='' disabled selected>Select a Customer ID</option>
                     {{#each customer}}
-                    <option value='{{this.customerID}}' required>
-                        {{this.customerID}}
+                    <option 
+                        value='{{this.customerID}}' 
+                        data-customer-name='{{this.name}}'
+                        data-customer-email='{{this.email}}'>
+                        {{this.display}}
                     </option>
                     {{/each}}
                 </select>
@@ -108,3 +111,13 @@
         </tbody>
     </table>
 </form>
+
+<script>
+    document.getElementById("update_customer").addEventListener("change", function () {
+        const selectedOption = this.options[this.selectedIndex];
+        document.getElementById("update_name").value =
+            selectedOption.dataset.customerName;
+        document.getElementById("update_email").value =
+            selectedOption.dataset.customerEmail;
+    });
+</script>

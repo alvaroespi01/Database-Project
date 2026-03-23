@@ -10,7 +10,6 @@
             <th>Ticket Price</th>
             <th>Showtime</th>
             <th>Customer</th>
-            <th>Edit</th>
             <th>Delete</th>
         </tr>
     </thead>
@@ -24,12 +23,6 @@
             <td>{{this.ticketPrice}}</td>
             <td>{{this.showtimeLabel}}</td>
             <td>{{this.customerName}}</td>
-
-            <td>
-                <a href="/EditTicket">
-                    <button>Edit</button>
-                </a>
-            </td>
 
             {{! DELETE form }}
             <form id='delete_ticket_form'>
@@ -45,10 +38,9 @@
     </tbody>
 </table>
 
-
 {{! CREATE form }}
 <h2>Add a Ticket</h2>
-<form class='cuForm' id='create_Ticket_form'>
+<form class='cuForm' id='create_Ticket_form' method='Post' action='/Tickets/addTicket'>
     <table>
         <thead>
             <tr>
@@ -65,31 +57,27 @@
                 <input type='datetime-local' name='create_ticket_date' id='create_ticket_date' required />
             </td>
             <td>
-                <input type="number" id="create_ticket_price"  placeholder="Enter a Price" step="0.01" min="0" inputmode="decimal">
+                <input type="number" name='create_ticket_price' id="create_ticket_price"  placeholder="Enter a Price" step="0.01" min="0" inputmode="decimal">
             </td>
             <td>
-                <form class='cuForm' id='create_ticket_form_showtime'>
-                    <select name='create_ticket_showtime' id='create_ticket_showtime' required>
-                        <option value='' disabled selected>Select a Showtime</option>
-                        {{#each showtime}}
-                        <option value='{{this.showtimeID}}' required>
-                            {{this.showtimeLabel}}
-                        </option>
-                        {{/each}}
-                    </select>
-                </form>
+                <select name='create_ticket_showtime' id='create_ticket_showtime' required>
+                    <option value='' disabled selected>Select a Showtime</option>
+                    {{#each showtime}}
+                    <option value='{{this.showtimeID}}' required>
+                        {{this.showtimeLabel}}
+                    </option>
+                    {{/each}}
+                </select>
             </td>
             <td>
-                <form class='cuForm' id='create_ticket_form_customer'>
-                    <select name='create_ticket_customer' id='create_ticket_customer' required>
-                        <option value='' disabled selected>Select a Customer</option>
-                        {{#each customer}}
-                        <option value='{{this.customerID}}' required>
-                            {{this.name}}
-                        </option>
-                        {{/each}}
-                    </select>
-                </form>
+                <select name='create_ticket_customer' id='create_ticket_customer' required>
+                    <option value='' disabled selected>Select a Customer</option>
+                    {{#each customer}}
+                    <option value='{{this.customerID}}' required>
+                        {{this.name}}
+                    </option>
+                    {{/each}}
+                </select>
             </td>
             <td>
                 <button type="submit">Add Showtime</button>
@@ -97,3 +85,87 @@
         </tbody>
     </table>
 </form>
+
+{{! Update form }}
+<h2>Edit a Ticket</h2>
+<form class='cuForm' id='update_ticket_form' method='Post' action='/Tickets/update'>
+    <table>
+        <thead>
+            <tr>
+                <th>Ticket ID</th>
+                <th>Purchase Date</th>
+                <th>Ticket Price</th>
+                <th>Showtime</th>
+                <th>Customer</th>
+                <th>Submit</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <td>
+                <select name='update_ticket' id='update_ticket' required>
+                    <option value='' disabled selected>Select a Ticket ID</option>
+                    {{#each ticket}}
+                    <option 
+                        value='{{this.ticketID}}'
+                        data-purchase-date='{{this.purchaseDate}}'
+                        data-ticket-price='{{this.ticketPrice}}'
+                        data-showtime-id='{{this.showtimeID}}'
+                        data-customer-id='{{this.customerID}}'>
+                        {{this.ticketID}}
+                    </option>
+                    {{/each}}
+                </select>
+            </td>
+            <td>
+                <input type='datetime-local' name='update_ticket_date' id='update_ticket_date' required />
+            </td>
+            <td>
+                <input type="number" name='update_ticket_price' id="update_ticket_price"  placeholder="Enter a Price" step="0.01" min="0" inputmode="decimal">
+            </td>
+            <td>
+                <select name='update_ticket_showtime' id='update_ticket_showtime' required>
+                    <option value='' disabled selected>Select a Showtime</option>
+                    {{#each showtime}}
+                    <option value='{{this.showtimeID}}' required>
+                        {{this.showtimeLabel}}
+                    </option>
+                    {{/each}}
+                </select>
+            </td>
+            <td>
+                <select name='update_ticket_customer' id='update_ticket_customer' required>
+                    <option value='' disabled selected>Select a Customer</option>
+                    {{#each customer}}
+                    <option value='{{this.customerID}}' required>
+                        {{this.name}}
+                    </option>
+                    {{/each}}
+                </select>
+            </td>
+            <td>
+                <button type="submit">Update Screen</button>
+            </td>
+        </tbody>
+    </table>
+</form>
+
+<script>
+    document.getElementById("update_ticket").addEventListener("change", function () {
+        const selectedOption = this.options[this.selectedIndex];
+        console.log(selectedOption.dataset);
+
+        const rawDate = selectedOption.dataset.purchaseDate;
+        const dateObj = new Date(rawDate);
+
+        const formattedDate = dateObj.toISOString().slice(0,16);
+
+        document.getElementById("update_ticket_date").value = formattedDate;
+        document.getElementById("update_ticket_price").value =
+            selectedOption.dataset.ticketPrice;
+        document.getElementById("update_ticket_showtime").value =
+            selectedOption.dataset.showtimeId;
+        document.getElementById("update_ticket_customer").value =
+            selectedOption.dataset.customerId;
+    });
+</script>

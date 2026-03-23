@@ -1,5 +1,5 @@
 -- #############################
--- CREATE Moviee
+-- CREATE Movie
 -- #############################
 DROP PROCEDURE IF EXISTS sp_CreateMovie;
 
@@ -26,7 +26,7 @@ DELIMITER ;
 
 
 -- #############################
--- UPDATE bsg_people
+-- UPDATE Movie
 -- #############################
 DROP PROCEDURE IF EXISTS sp_UpdateMovie;
 
@@ -40,7 +40,7 @@ DELIMITER ;
 
 
 -- #############################
--- DELETE bsg_people
+-- DELETE Movie
 -- #############################
 DROP PROCEDURE IF EXISTS sp_DeleteMovie;
 
@@ -85,35 +85,37 @@ DELIMITER ;
 DROP PROCEDURE IF EXISTS sp_UpdateScreen;
 
 DELIMITER //
-CREATE PROCEDURE sp_UpdateScreen(IN s_id INT, IN s_screenNumber INT, IN m_seatingCapacity INT)
+CREATE PROCEDURE sp_UpdateScreen(IN s_id INT, IN s_screenNumber INT, IN s_seatingCapacity INT)
 
 BEGIN
-    UPDATE Screens SET screenNumber = s_screenNumber, seatingCapacity = m_seatingCapacity WHERE screenID = s_id; 
+    UPDATE Screens
+    SET screenNumber = s_screenNumber,
+        seatingCapacity = s_seatingCapacity
+    WHERE screenID = s_id;
 END //
 DELIMITER ;
 
 -- #############################
--- CREATE Moviee
+-- CREATE Screen
 -- #############################
 DROP PROCEDURE IF EXISTS sp_CreateScreen;
 
 DELIMITER //
 CREATE PROCEDURE sp_CreateScreen(
-    IN m_screenNumber INT, 
-    IN m_seatingCapacity INT, 
-    OUT m_id INT)
+    IN s_screenNumber INT, 
+    IN s_seatingCapacity INT, 
+    OUT s_id INT)
 BEGIN
     INSERT INTO Screens (screenNumber, seatingCapacity) 
-    VALUES (m_screenNumber, m_seatingCapacity);
+    VALUES (s_screenNumber, s_seatingCapacity);
 
     -- Store the ID of the last inserted row
-    SELECT LAST_INSERT_ID() into m_id;
+    SELECT LAST_INSERT_ID() into s_id;
     -- Display the ID of the last inserted movie.
     SELECT LAST_INSERT_ID() AS 'new_id';
 
 END //
 DELIMITER ;
-
 
 
 -- #############################
@@ -149,3 +151,75 @@ BEGIN
 END //
 DELIMITER ;
 
+
+
+-- #############################
+-- UPDATE Showtime
+-- #############################
+DROP PROCEDURE IF EXISTS sp_UpdateShowtime;
+
+DELIMITER //
+CREATE PROCEDURE sp_UpdateShowtime(IN sh_id INT, IN sh_date DATE, IN sh_time TIME, IN sh_movieID INT, IN sh_screenID INT)
+
+BEGIN
+    UPDATE Showtimes SET showDate = sh_date, startTime = sh_time, movieID = sh_movieID, screenID = sh_screenID WHERE showtimeID = sh_id; 
+END //
+DELIMITER ;
+
+-- #############################
+-- CREATE Showtime
+-- #############################
+DROP PROCEDURE IF EXISTS sp_CreateShowtime;
+
+DELIMITER //
+CREATE PROCEDURE sp_CreateShowtime(
+    IN sh_date DATE, 
+    IN sh_time TIME,
+    IN sh_movieID INT,
+    IN sh_screenID INT, 
+    OUT sh_id INT)
+BEGIN
+    INSERT INTO Showtimes (showDate, startTime, movieID, screenID) 
+    VALUES (sh_date, sh_time, sh_movieID, sh_screenID);
+
+    SELECT LAST_INSERT_ID() into sh_id;
+    SELECT LAST_INSERT_ID() AS 'new_id';
+
+END //
+DELIMITER ;
+
+
+-- #############################
+-- UPDATE Ticket
+-- #############################
+DROP PROCEDURE IF EXISTS sp_UpdateTicket;
+
+DELIMITER //
+CREATE PROCEDURE sp_UpdateTicket(IN t_id INT, IN t_buyDate DATETIME, IN t_price DECIMAL(5,2), IN t_showID INT, IN t_customerID INT)
+
+BEGIN
+    UPDATE Tickets SET purchaseDate = t_buyDate, ticketPrice = t_price, showtimeID = t_showID, customerID = t_customerID WHERE ticketID = t_id; 
+END //
+DELIMITER ;
+
+-- #############################
+-- CREATE Ticket
+-- #############################
+DROP PROCEDURE IF EXISTS sp_CreateTicket;
+
+DELIMITER //
+CREATE PROCEDURE sp_CreateTicket(
+    IN t_buyDate DATETIME, 
+    IN t_price DECIMAL(5,2),
+    IN t_showID INT,
+    IN t_customerID INT, 
+    OUT t_id INT)
+BEGIN
+    INSERT INTO Tickets (purchaseDate, ticketPrice, showtimeID, customerID) 
+    VALUES (t_buyDate, t_price, t_showID, t_customerID);
+
+    SELECT LAST_INSERT_ID() into t_id;
+    SELECT LAST_INSERT_ID() AS 'new_id';
+
+END //
+DELIMITER ;

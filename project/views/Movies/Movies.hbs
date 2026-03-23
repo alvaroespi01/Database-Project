@@ -39,6 +39,7 @@
     </tbody>
 </table>
 
+{{! CREATE form }}
 <h2>Add A New Movie</h2>
 <form class='cuForm' id='create_movie_form' method ='Post' action='/Movies/addMovie'>
     <table>
@@ -68,6 +69,7 @@
     </table>
 </form>
 
+{{! UPDATE form }}
 <h2>Edit A Movie</h2>
 <form class='cuForm' id='update_movie_form' method='Post' action='/Movies/update'>
     <table>
@@ -86,8 +88,12 @@
                 <select name='update_movie' id='update_movie' required>
                     <option value='' disabled selected>Select a Movie ID</option>
                     {{#each movieList}}
-                    <option value='{{this.movieID}}' required>
-                        {{this.movieID}}
+                    <option 
+                        value='{{this.movieID}}'
+                        data-title='{{this.title}}'
+                        data-genre='{{this.genre}}'
+                        data-duration='{{this.duration}}'>
+                        {{this.display}}
                     </option>
                     {{/each}}
                 </select>
@@ -107,3 +113,15 @@
         </tbody>
     </table>
 </form>
+
+<script>
+    document.getElementById("update_movie").addEventListener("change", function () {
+        const selectedOption = this.options[this.selectedIndex];
+        document.getElementById("update_movie_title").value =
+            selectedOption. .title;
+        document.getElementById("update_movie_genre").value =
+            selectedOption.dataset.genre;
+        document.getElementById("update_movie_duration").value =
+            selectedOption.dataset.duration;
+    });
+</script>

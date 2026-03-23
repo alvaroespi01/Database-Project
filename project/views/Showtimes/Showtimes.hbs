@@ -10,7 +10,6 @@
             <th>Start Time</th>
             <th>Title</th>
             <th>Screen Number</th>
-            <th>Edit</th>
             <th>Delete</th>
         </tr>
     </thead>
@@ -24,12 +23,6 @@
             <td>{{this.startTime}}</td>
             <td>{{this.movieTitle}}</td>
             <td>{{this.screenNumber}}</td>
-
-            <td>
-                <a href="/EditShowtime">
-                    <button>Edit</button>
-                </a>
-            </td>
 
             {{! DELETE form }}
             <form id='delete_showtime_form'>
@@ -48,7 +41,7 @@
 
 {{! CREATE form }}
 <h2>Add a Showtime</h2>
-<form class='cuForm' id='create_showtime_form'>
+<form class='cuForm' id='create_showtime_form' method='Post' action='/Showtimes/addShowtime'>
     <table>
         <thead>
             <tr>
@@ -68,28 +61,24 @@
                 <input type='time' name='create_showtime_time' id='create_showtime_time' required />
             </td>
             <td>
-                <form class='cuForm' id='update_showtime_movie_form'>
-                    <select name='update_showtime_movie' id='update_showtime_movie' required>
-                        <option value='' disabled selected>Select a Movie</option>
-                        {{#each movieList}}
-                        <option value='{{this.movieID}}' required>
-                            {{this.title}}
-                        </option>
-                        {{/each}}
-                    </select>
-                </form>
+                <select name='create_showtime_movie' id='create_showtime_movie' required>
+                    <option value='' disabled selected>Select a Movie</option>
+                    {{#each movieList}}
+                    <option value='{{this.movieID}}' required>
+                        {{this.title}}
+                    </option>
+                    {{/each}}
+                </select>
             </td>
             <td>
-                <form class='cuForm' id='update_showtime_screen_form'>
-                    <select name='update_showtime_screen' id='update_showtime_screen' required>
-                        <option value='' disabled selected>Select a Screen</option>
-                        {{#each screenList}}
-                        <option value='{{this.screenID}}' required>
-                            {{this.screenNumber}}
-                        </option>
-                        {{/each}}
-                    </select>
-                </form>
+                <select name='create_showtime_screen' id='create_showtime_screen' required>
+                    <option value='' disabled selected>Select a Screen</option>
+                    {{#each screenList}}
+                    <option value='{{this.screenID}}' required>
+                        {{this.screenID}}
+                    </option>
+                    {{/each}}
+                </select>
             </td>
             <td>
                 <button type="submit">Add Showtime</button>
@@ -97,3 +86,86 @@
         </tbody>
     </table>
 </form>
+
+
+{{! Update Form }}
+<h2>Edit a Showtime</h2>
+<form class='cuForm' id='update_showtime_form' method='Post' action='/Showtimes/update'>
+    <table>
+        <thead>
+            <tr>
+                <th>Showtime ID</th>
+                <th>Show Date</th>
+                <th>Start Time</th>
+                <th>Title</th>
+                <th>Screen Number</th>
+                <th>Submit</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <td>
+                <select name='update_showtime' id='update_showtime' required>
+                    <option value='' disabled selected>Select a Showtime ID</option>
+                    {{#each showtime}}
+                    <option 
+                        value='{{this.showtimeID}}'
+                        data-show-date='{{this.showDate}}'
+                        data-start-time='{{this.startTime}}'
+                        data-movie-id='{{this.movieID}}'
+                        data-screen-id='{{this.screenID}}'>
+                        {{this.display}}
+                    </option>
+                    {{/each}}
+                </select>
+            </td>
+            <td>
+                <input type='date' name='update_showtime_date' id='update_showtime_date' required />
+            </td>
+            <td>
+                <input type='time' name='update_showtime_time' id='update_showtime_time' required />
+            </td>
+            <td>
+                <select name='update_showtime_movie' id='update_showtime_movie' required>
+                    <option value='' disabled selected>Select a Movie</option>
+                    {{#each movieList}}
+                    <option value='{{this.movieID}}' required>
+                        {{this.title}}
+                    </option>
+                    {{/each}}
+                </select>
+            </td>
+            <td>
+                <select name='update_showtime_screen' id='update_showtime_screen' required>
+                    <option value='' disabled selected>Select a Screen</option>
+                    {{#each screenList}}
+                    <option value='{{this.screenID}}' required>
+                        {{this.screenNumber}}
+                    </option>
+                    {{/each}}
+                </select>
+            </td>
+            <td>
+                <button type="submit">Update Showtime</button>
+            </td>
+        </tbody>
+    </table>
+</form>
+
+<script>
+    document.getElementById("update_showtime").addEventListener("change", function () {
+        const selectedOption = this.options[this.selectedIndex];
+        console.log(selectedOption.dataset);
+
+        const rawDate = selectedOption.dataset.showDate;
+        const formattedDate = new Date(rawDate).toISOString().split('T')[0];
+
+        document.getElementById("update_showtime_date").value = formattedDate
+        document.getElementById("update_showtime_time").value =
+            selectedOption.dataset.startTime;
+        document.getElementById("update_showtime_movie").value =
+            selectedOption.dataset.movieId;
+        document.getElementById("update_showtime_screen").value =
+            selectedOption.dataset.screenId;
+    });
+</script>

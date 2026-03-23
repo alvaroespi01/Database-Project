@@ -32,12 +32,13 @@ app.get('/', async function (req, res) {
     }
 });
 
+// Movies Page
 app.get('/Movies', async function (req, res) {
     try {
         // Create and execute our queries
         const movieQuery = `SELECT movieID, title, genre, duration 
                 FROM Movies ORDER BY title ASC`;
-        const movieDropdown = `SELECT * FROM Movies ORDER BY movieID ASC`;
+        const movieDropdown = `SELECT movieID, concat(movieID, ' - ', title) as display, title, genre, duration FROM Movies ORDER BY movieID ASC`;
         
         const [movieList] = await db.query(movieDropdown);
         const [movie] = await db.query(movieQuery);
@@ -54,6 +55,7 @@ app.get('/Movies', async function (req, res) {
     }
 });
 
+// Screens Page
 app.get('/Screens', async function (req, res) {
     try {
         // Create and execute our queries
@@ -62,8 +64,6 @@ app.get('/Screens', async function (req, res) {
 
         const [screen] = await db.query(screensQuery);
 
-        // Render the bsg-people.hbs file, and also send the renderer
-        //  an object that contains our bsg_people and bsg_homeworld information
         res.render('Screens/Screens', { screen: screen });
     } catch (error) {
         console.error('Error executing queries:', error);
@@ -74,10 +74,11 @@ app.get('/Screens', async function (req, res) {
     }
 });
 
+// Customers Page
 app.get('/Customers', async function (req, res) {
     try {
-        const customersQuery = `SELECT customerID, name, email 
-                FROM Customers ORDER BY name ASC`;
+        const customersQuery = `SELECT customerID, concat(customerID, " - ", name) as display, name, email 
+                FROM Customers ORDER BY customerID`;
 
         const [customer] = await db.query(customersQuery);
 
@@ -91,11 +92,20 @@ app.get('/Customers', async function (req, res) {
     }
 });
 
+// Showtimes Page
 app.get('/Showtimes', async function (req, res) {
     try {
         // Create and execute our queries
-        const showtimesQuery = `SELECT showtimeID, showDate, startTime, 
-                Movies.title AS movieTitle, Screens.screenNumber AS screenNumber 
+        const showtimesQuery = 
+            `SELECT 
+                showtimeID, 
+                concat(showtimeID, " - ", Movies.title, " - ", startTime) as display, 
+                showDate, 
+                startTime, 
+                Movies.movieID AS movieID,
+                Movies.title AS movieTitle, 
+                Screens.screenID AS screenID,
+                Screens.screenNumber AS screenNumber 
                 FROM Showtimes 
                     JOIN Movies ON Showtimes.movieID = Movies.movieID 
                     JOIN Screens on Showtimes.screenID = Screens.screenID 
@@ -107,8 +117,6 @@ app.get('/Showtimes', async function (req, res) {
         const [screenList] = await db.query(screenDropdown);
         const [showtime] = await db.query(showtimesQuery);
 
-        // Render the bsg-people.hbs file, and also send the renderer
-        //  an object that contains our bsg_people and bsg_homeworld information
         res.render('Showtimes/Showtimes', { showtime:showtime, movieList:movieList, screenList:screenList });
     } catch (error) {
         console.error('Error executing queries:', error);
@@ -119,11 +127,18 @@ app.get('/Showtimes', async function (req, res) {
     }
 });
 
+// Tickets
 app.get('/Tickets', async function (req, res) {
     try {
         // Create and execute our queries
-        const ticketQuery = `SELECT ticketID, purchaseDate,ticketPrice, 
+        const ticketQuery = 
+            `SELECT 
+                ticketID, 
+                purchaseDate,
+                ticketPrice, 
+                Showtimes.showtimeID AS showtimeID,
                 CONCAT(Movies.title,' - ', Showtimes.showDate,' ',Showtimes.startTime) AS showtimeLabel, 
+                Customers.customerID as customerID,
                 Customers.name AS customerName 
                 FROM Tickets 
                     JOIN Showtimes ON Tickets.showtimeID = Showtimes.showtimeID 
@@ -139,76 +154,24 @@ app.get('/Tickets', async function (req, res) {
         const [showtime] = await db.query(showtimeDropdown);
         const [customer] = await db.query(customerDropdown);
 
-        // Render the bsg-people.hbs file, and also send the renderer
-        //  an object that contains our bsg_people and bsg_homeworld information
         res.render('Tickets/Tickets', { ticket: ticket, showtime:showtime, customer:customer});
     } catch (error) {
         console.error('Error executing queries:', error);
-        // Send a generic error message to the browser
         res.status(500).send(
             'An error occurred while executing the database queries.'
         );
     }
 });
 
-app.get('/EditCustomer', async function (req, res){
-try {
-        res.render('Customers/EditCustomer', { });
-    } catch (error) {
-        console.error('Error executing queries:', error);
-        // Send a generic error message to the browser
-        res.status(500).send(
-            'An error occurred while executing the database queries.'
-        );
-    }
-});
-
-app.get('/EditShowtime', async function (req, res){
-try {
-        const movieDropdown = `SELECT * FROM Movies ORDER BY title ASC`;
-        const screenDropdown = `SELECT * FROM Screens ORDER BY screenID ASC`;
-
-        const [movieList] = await db.query(movieDropdown);
-        const [screenList] = await db.query(screenDropdown);
-
-        res.render('Showtimes/EditShowtime', { movieList:movieList, screenList:screenList});
-    } catch (error) {
-        console.error('Error executing queries:', error);
-        // Send a generic error message to the browser
-        res.status(500).send(
-            'An error occurred while executing the database queries.'
-        );
-    }
-});
-
-app.get('/EditTicket', async function (req, res){
-try {
-        const showtimeDropdown = `SELECT showtimeID, CONCAT(Movies.title,' - ', showDate,' ',startTime) AS showtimeLabel
-                FROM Showtimes JOIN Movies on Showtimes.movieID = Movies.movieID
-                ORDER BY showdate, showtimeLabel, startTime ASC;`;
-        const customerDropdown = `SELECT * FROM Customers ORDER BY name;`;
-       
-        const [movieList] = await db.query(showtimeDropdown);
-        const [customerList] = await db.query(customerDropdown);
-
-        res.render('Tickets/EditTicket', { movieList:movieList, customerList:customerList });
-    } catch (error) {
-        console.error('Error executing queries:', error);
-        // Send a generic error message to the browser
-        res.status(500).send(
-            'An error occurred while executing the database queries.'
-        );
-    }
-});
-
+// Create a Movie
 app.post('/Movies/addMovie', async function (req, res) {
     try {
         // Parse frontend form information
         let data = req.body;
 
         // Cleanse data - If the duration isn't a number, make it NULL.
-        if (isNaN(parseInt(data.create_person_duration)))
-            data.create_person_duration = null;
+        // if (isNaN(parseInt(data.create_person_duration)))
+        //     data.create_person_duration = null;
 
         // Create and execute our queries
         // Using parameterized queries (Prevents SQL injection attacks)
@@ -221,10 +184,6 @@ app.post('/Movies/addMovie', async function (req, res) {
             data.create_movie_duration,
         ]);
 
-        console.log(`CREATE Movie. ID: ${rows.new_id} ` +
-            `Title: ${data.create_movie_title}`
-        );
-
         // Redirect the user to the updated webpage
         res.redirect('/Movies');
     } catch (error) {
@@ -236,19 +195,14 @@ app.post('/Movies/addMovie', async function (req, res) {
     }
 });
 
+// Update a Movie
 app.post('/Movies/update', async function (req, res) {
     try {
-        // Parse frontend form information
         const data = req.body;
 
-        // Cleanse data - If the duration isn't a number, make it NULL.
-        if (isNaN(parseInt(data.update_movie_duration)))
-            data.update_movie_duration = null;
-
-        // Create and execute our query
-        // Using parameterized queries (Prevents SQL injection attacks)
         const query1 = 'CALL sp_UpdateMovie(?, ?, ?, ?);';
         const query2 = 'SELECT title, genre, duration FROM Movies WHERE movieID = ?;';
+
         await db.query(query1, [
             data.update_movie,
             data.update_movie_title,
@@ -257,11 +211,6 @@ app.post('/Movies/update', async function (req, res) {
         ]);
         const [[rows]] = await db.query(query2, [data.update_movie]);
 
-        console.log(`UPDATE Movie. ID: ${data.update_movie} ` +
-            `Title: ${rows.title}`
-        );
-
-        // Redirect the user to the updated webpage data
         res.redirect('/Movies');
     } catch (error) {
         console.error('Error executing queries:', error);
@@ -272,32 +221,24 @@ app.post('/Movies/update', async function (req, res) {
     }
 });
 
-// DELETE ROUTES
+// Delete Movie
 app.post('/Movies/delete', async function (req, res) {
     try {
-        // Parse frontend form information
         let data = req.body;
 
-        // Create and execute our query
-        // Using parameterized queries (Prevents SQL injection attacks)
         const query1 = `CALL sp_DeleteMovie(?);`;
         await db.query(query1, [data.delete_movie_id]);
 
-        console.log(`DELETE Movie. ID: ${data.delete_movie_id} ` +
-            `Name: ${data.delete_movie_title}`
-        );
-
-        // Redirect the user to the updated webpage data
         res.redirect('/Movies');
     } catch (error) {
         console.error('Error executing queries:', error);
-        // Send a generic error message to the browser
         res.status(500).send(
             'An error occurred while executing the database queries.'
         );
     }
 });
 
+// Create a screen
 app.post('/Screens/addScreen', async function (req, res) {
     try {
         let data = req.body;
@@ -308,10 +249,6 @@ app.post('/Screens/addScreen', async function (req, res) {
             data.create_screen_num,
             data.create_screen_capacity,
         ]);
-
-        console.log(`CREATE Screen. ID: ${rows.new_id} ` +
-            `Title: ${data.create_screen_num}`
-        );
 
         res.redirect('/Screens');
     } catch (error) {
@@ -335,6 +272,7 @@ app.post('/Screens/addScreen', async function (req, res) {
     }
 });
 
+// Update a Screen
 app.post('/Screens/update', async function (req, res){
 try {
         const data = req.body;
@@ -347,9 +285,6 @@ try {
             data.update_screen_capacity,
         ]);
         const [[rows]] = await db.query(query2, [data.update_screen]);
-
-        console.log(`UPDATE Screen. ID: ${data.update_screen} ` + `Title: ${rows.screenNumber}`
-        );
 
         res.redirect('/Screens');
     } catch (error) {
@@ -374,7 +309,7 @@ try {
 });
 
 
-
+// Create a Customer
 app.post('/Customers/addCustomer', async function (req, res) {
     try {
         let data = req.body;
@@ -408,6 +343,8 @@ app.post('/Customers/addCustomer', async function (req, res) {
     }
 });
 
+
+// Update a Customer
 app.post('/Customers/update', async function (req, res){
 try {
         const data = req.body;
@@ -436,6 +373,105 @@ try {
             });     
         }
 
+        console.error('Error executing queries:', error);
+        res.status(500).send(
+            'An error occurred while executing the database queries.'
+        );
+    }
+});
+
+
+// Update a Showtime
+app.post('/Showtimes/update', async function (req, res){
+try {
+        const data = req.body;
+
+        const query1 = 'CALL sp_UpdateShowtime(?, ?, ?, ?, ?);';
+        const query2 = 'SELECT showDate, startTime, movieID, screenID FROM Showtimes WHERE showtimeID = ?;';
+        await db.query(query1, [
+            data.update_showtime,
+            data.update_showtime_date,
+            data.update_showtime_time,
+            data.update_showtime_movie,
+            data.update_showtime_screen,
+        ]);
+        const [[rows]] = await db.query(query2, [data.update_showtime]);
+
+        res.redirect('/Showtimes');
+    } catch (error) {
+        console.error('Error executing queries:', error);
+        res.status(500).send(
+            'An error occurred while executing the database queries.'
+        );
+    }
+});
+
+
+// Create a Showtime
+app.post('/Showtimes/addShowtime', async function (req, res) {
+    try {
+        let data = req.body;
+
+        const query1 = `CALL sp_CreateShowtime(?, ?, ?, ?, @new_id);`;
+
+        const [[[rows]]] = await db.query(query1, [
+            data.create_showtime_date,
+            data.create_showtime_time,
+            data.create_showtime_movie,
+            data.create_showtime_screen,
+        ]);
+
+        res.redirect('/Showtimes');
+    } catch (error) {
+        console.error('Error executing queries:', error);
+        res.status(500).send(
+            'An error occurred while executing the database queries.'
+        );
+    }
+});
+
+// Update a Ticket
+app.post('/Tickets/update', async function (req, res){
+try {
+        const data = req.body;
+
+        const query1 = 'CALL sp_UpdateTicket(?, ?, ?, ?, ?);';
+        const query2 = 'SELECT purchaseDate, ticketPrice, showtimeID, customerID FROM Tickets WHERE ticketID = ?;';
+        await db.query(query1, [
+            data.update_ticket,
+            data.update_ticket_date,
+            data.update_ticket_price,
+            data.update_ticket_showtime,
+            data.update_ticket_customer,
+        ]);
+        const [[rows]] = await db.query(query2, [data.update_ticket]);
+
+        res.redirect('/Tickets');
+    } catch (error) {
+        console.error('Error executing queries:', error);
+        res.status(500).send(
+            'An error occurred while executing the database queries.'
+        );
+    }
+});
+
+
+// Create a Ticket
+app.post('/Tickets/addTicket', async function (req, res) {
+    try {
+        let data = req.body;
+
+        const query1 = `CALL sp_CreateTicket(?, ?, ?, ?, @new_id);`;
+
+        const [[[rows]]] = await db.query(query1, [
+            data.create_ticket_date,
+            data.create_ticket_price,
+            data.create_ticket_showtime,
+            data.create_ticket_customer,
+        ]);
+
+        res.redirect('/Tickets');
+    } catch (error) {
         console.error('Error executing queries:', error);
         res.status(500).send(
             'An error occurred while executing the database queries.'
